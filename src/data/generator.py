@@ -123,11 +123,10 @@ class ejNCVdataGenerator():
             self.VinComponent.append(tempComponent)
         
     def addGaussianNoise2Output(self):
-        noiseAmp = np.random.uniform(0.1, 0.3, 1)
         mean = 0
-        std = 1 
+        std = 0.1 
 
-        noise = noiseAmp * np.random.normal(mean, std, size=self.numSample)
+        noise = ((sum(self.VinData**2)/self.numSample)**(1/2)) * np.random.normal(mean, std, size=self.numSample)
         self.VinData += noise
     
     def combinateAllData(self):
