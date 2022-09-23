@@ -140,3 +140,395 @@ class RNN(nn.Module):
         out, hn = self.rnn(x, h0)
         out = self.fc(out[:, -1, :]) 
         return out
+
+class Three(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Three, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, output_dim),
+            # nn.ReLU(),
+            # nn.Linear(output_dim, output_dim),
+        )
+
+        #self.apply(init_weights)
+
+    def forward(self, x):
+        return self.net(x)
+
+class Two(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super(Two, self).__init__()
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+            # nn.ReLU(),
+            # nn.Linear(output_dim, output_dim),
+        )
+
+        #self.apply(init_weights)
+
+    def forward(self, x):
+        return self.net(x)
+
+class Film(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Film, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+        )
+        self.cap = nn.Sequential(
+            nn.Linear(7, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+        self.cap_bias = nn.Sequential(
+            nn.Linear(7, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+        self.post = nn.Sequential(
+            nn.Linear(hidden_dim2, output_dim),
+            nn.ReLU(),
+            nn.Linear(output_dim, output_dim),
+        )
+        self.hidden_dim2 = hidden_dim2
+        self.w = 0
+        self.b = 0
+
+        #self.apply(init_weights)
+
+    def forward(self, x, caps):
+        self.w = self.cap(caps)
+        self.b = self.cap_bias(caps)
+        self.net_out = self.net(x)
+        self.net_out = self.w * self.net_out + self.b
+        #self.net_out = torch.cat((self.w * self.net_out[:,:int(self.hidden_dim2/2)], self.net_out[:,int(self.hidden_dim2/2):]), 1)
+        return self.post(self.net_out)# + self.b)
+
+class Film2(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Film2, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+        )
+        self.cap = nn.Sequential(
+            nn.Linear(2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+        self.cap_bias = nn.Sequential(
+            nn.Linear(2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+        self.post = nn.Sequential(
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+        self.hidden_dim2 = hidden_dim2
+        self.w = 0
+        self.b = 0
+
+        #self.apply(init_weights)
+
+    def forward(self, x, caps):
+        self.w = self.cap(caps)
+        self.b = self.cap_bias(caps)
+        self.net_out = self.net(x)
+        self.net_out = self.w * self.net_out + self.b
+        #self.net_out = torch.cat((self.w * self.net_out[:,:int(self.hidden_dim2/2)], self.net_out[:,int(self.hidden_dim2/2):]), 1)
+        return self.post(self.net_out)# + self.b)
+
+class Film2Simple(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Film2Simple, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+        )
+        self.cap = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.cap_bias = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.post = nn.Sequential(
+            nn.Linear(hidden_dim2, output_dim),
+            nn.ReLU(),
+            nn.Linear(output_dim, output_dim),
+        )
+        self.hidden_dim2 = hidden_dim2
+        self.w = 0
+        self.b = 0
+
+        #self.apply(init_weights)
+
+    def forward(self, x, caps):
+        self.w = self.cap(caps)
+        self.b = self.cap_bias(caps)
+        self.net_out = self.net(x)
+        self.net_out = self.w * self.net_out + self.b
+        #self.net_out = torch.cat((self.w * self.net_out[:,:int(self.hidden_dim2/2)], self.net_out[:,int(self.hidden_dim2/2):]), 1)
+        return self.post(self.net_out)# + self.b)
+
+class Film2Manual(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Film2Manual, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+        )
+        self.cap_bias = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.post = nn.Sequential(
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+        self.hidden_dim2 = hidden_dim2
+        self.w = 0
+        self.b = 0
+
+        #self.apply(init_weights)
+
+    def forward(self, x, caps):
+        self.w = torch.sum(caps,dim=1,keepdim=True)
+        self.b = self.cap_bias(caps)
+        net_out = self.net(x)
+        net_out = self.w * net_out + self.b
+        #self.net_out = torch.cat((self.w * self.net_out[:,:int(self.hidden_dim2/2)], self.net_out[:,int(self.hidden_dim2/2):]), 1)
+        return self.post(net_out)# + self.b)
+
+class Film2_SimpleNet(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Film2_SimpleNet, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim2),
+            nn.ReLU(),
+        )
+        self.cap = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.cap_bias = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.post = nn.Sequential(
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+        self.hidden_dim2 = hidden_dim2
+        self.w = 0
+        self.b = 0
+
+        #self.apply(init_weights)
+
+    def forward(self, x, caps):
+        self.w = self.cap(caps)
+        self.b = self.cap_bias(caps)
+        self.net_out = self.net(x)
+        self.net_out = self.w * self.net_out + self.b
+        #self.net_out = torch.cat((self.w * self.net_out[:,:int(self.hidden_dim2/2)], self.net_out[:,int(self.hidden_dim2/2):]), 1)
+        return self.post(self.net_out)# + self.b)
+
+class Film2_SimpleNetPost(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Film2_SimpleNetPost, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+        )
+        self.cap = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.cap_bias = nn.Sequential(
+            nn.Linear(2, 1),
+        )
+        self.post = nn.Sequential(
+            nn.Linear(hidden_dim, output_dim),
+        )
+        self.hidden_dim2 = hidden_dim2
+        self.w = 0
+        self.b = 0
+
+        #self.apply(init_weights)
+
+    def forward(self, x, caps):
+        self.w = self.cap(caps)
+        self.b = self.cap_bias(caps)
+        self.net_out = self.net(x)
+        self.net_out = self.w * self.net_out + self.b
+        #self.net_out = torch.cat((self.w * self.net_out[:,:int(self.hidden_dim2/2)], self.net_out[:,int(self.hidden_dim2/2):]), 1)
+        return self.post(self.net_out)# + self.b)
+
+class TS(nn.Module):
+    def __init__(self, roll_dim, ff_dim, dummy1, dummy2, n_head=5):
+        super(TS, self).__init__()
+        self.roll_dim = roll_dim
+        self.pad = nn.ReflectionPad1d((0,roll_dim-1))
+        self.ts = nn.Sequential(
+            nn.TransformerEncoderLayer(
+                d_model=roll_dim, dim_feedforward=ff_dim, nhead=n_head, batch_first=True
+            ),
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(roll_dim, 1),
+            #nn.ReLU(),
+            #nn.Linear(output_dim, output_dim),
+        )
+
+    def forward(self, x):
+        x = torch.cat((x, x[:,:self.roll_dim-1]), dim=1).unfold(1, self.roll_dim, 1)
+        #print(x.shape)
+        x = self.ts(x)
+        #print(f"after ts {x.shape}")
+        x = self.fc(x)
+        #print(f"after fc {x.shape}")
+        return x.squeeze(dim=-1)
+
+class Six(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Six, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+            # nn.ReLU(),
+            # nn.Linear(output_dim, output_dim),
+        )
+
+        #self.apply(init_weights)
+
+    def forward(self, x):
+        return self.net(x)
+
+class Eight(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Eight, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+            # nn.ReLU(),
+            # nn.Linear(output_dim, output_dim),
+        )
+
+        #self.apply(init_weights)
+
+    def forward(self, x):
+        return self.net(x)
+
+class Twelve(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, hidden_dim2=None):
+        super(Twelve, self).__init__()
+        if not hidden_dim2:
+            hidden_dim2 = output_dim
+        # Define your neural network here
+        # TODO: How to modify this model to achieve better performance?
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+            # nn.ReLU(),
+            # nn.Linear(output_dim, output_dim),
+        )
+
+        #self.apply(init_weights)
+
+    def forward(self, x):
+        return self.net(x)

@@ -25,10 +25,10 @@ sampleLen   = 0.025  # seconds
 sampleFreq  = 8000  # Hz
 # Model dimensions
 hidden_dim  = 64
-normalize   = True
+normalize   = False
 
 model = Demo(200, 64, 200, 128)
-model.load_state_dict(torch.load(f"./model_64_0.025_8000_demo.pt"))
+model.load_state_dict(torch.load(f"./model_64_0.025_8000_no_norm_v4.pt"))
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model.to(device)
 model.eval()
@@ -41,7 +41,9 @@ dev = torch.utils.data.DataLoader(
 
 dev_mse = 0
 dev_rms = 0
-for x, y in tqdm(dev):                         # iterate through the dataloader
+avg_rms = 0
+rms_list = []
+for i, (x, y) in enumerate(tqdm(dev)):                         # iterate through the dataloader
     x, y = x.float(), y.float()
     if normalize:
         x = nn.functional.normalize(x, dim=1)
@@ -52,10 +54,23 @@ for x, y in tqdm(dev):                         # iterate through the dataloader
         Vout_rms = ((sum(pred.squeeze()**2)/len(pred.squeeze()))**(1/2)).item()
         #print(Vout_rms, Vac_rms)
         mse_loss = nn.MSELoss()(pred, y)    # compute loss
+    avg_rms += abs(Vac_rms - Vout_rms)
     dev_rms += abs(Vac_rms - Vout_rms)
     dev_mse += mse_loss.detach().cpu().item() * len(x)  # accumulate loss
+    if (i+1)%100==0:
+        rms_list.append(avg_rms/100)
+        avg_rms = 0
 dev_mse = dev_mse / len(dev.dataset)                    # compute averaged loss
 dev_rms = dev_rms / len(dev.dataset)
+
+plt.figure(figsize=(12,4), dpi= 300, facecolor='w', edgecolor='k')
+plt.plot(10 ** np.linspace(np.log10(1/10), np.log10(10), len(rms_list)), rms_list)
+plt.xlabel("Ratio of capacitance to original values")
+plt.ylabel("RMS")
+plt.xscale("log")
+#plt.title("Small THD")
+plt.savefig("rms.png")
+plt.close()
 
 total_error = 0
 rms_error = 0

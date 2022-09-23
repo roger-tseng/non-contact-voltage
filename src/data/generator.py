@@ -68,7 +68,7 @@ def harmonicAmpGen(Vamp_rms:float, Vthd_per:float, order: int) -> list:
 
 # NCVD Data Generator
 class ejNCVdataGenerator():
-    def __init__(self, Vamp_rms, VthdMax, f_fund, t_start, phase, harmonicOrder = 4, sampleLen = 0.05, sampleFreq = 16000, C1 = 18.0E-12, C2 = 19.0E-12, enableVinNoise = True):
+    def __init__(self, Vamp_rms, VthdMax, f_fund, t_start, phase, harmonicOrder = 4, sampleLen = 0.05, sampleFreq = 16000, C1 = 18.0E-12, C2 = 19.0E-12, enableVinNoise = True, Rin = 4.0E6, Cin = 39.0E-12):
         
         self.enableVinNoise = enableVinNoise
         
@@ -80,10 +80,11 @@ class ejNCVdataGenerator():
         self.sampleLen = sampleLen   #numWavePeriod
         self.sampleFreq = sampleFreq #numSample
         self.numSample = int(sampleLen*sampleFreq)
-        
         self.start = t_start
         self.time = np.linspace(self.start, self.start+self.sampleLen, num=self.numSample, dtype=float)
         
+        self.Rin = Rin
+        self.Cin = Cin
         self.C1 = C1#18.0E-12 * random.uniform(0.3, 3)
         self.C2 = C2#19.0E-12 * random.uniform(0.3, 3)
 
@@ -119,7 +120,7 @@ class ejNCVdataGenerator():
         #self.C1 = 18.0E-12 * random.uniform(0.3, 3)
         #self.C2 = 19.0E-12 * random.uniform(0.3, 3)
         for Vac in self.VacComponent:
-            tempComponent = trans2Vin(Vac, 4.0E6, 39.0E-12, self.C1, self.C2)
+            tempComponent = trans2Vin(Vac, self.Rin, self.Cin, self.C1, self.C2)
             self.VinComponent.append(tempComponent)
         
     def addGaussianNoise2Output(self):
@@ -141,6 +142,13 @@ class ejNCVdataGenerator():
     def generateAllData(self):
         
         self.generateVacComponent()
+        self.transVac2Vin()
+        
+        self.combinateAllData()
+        if self.enableVinNoise:
+            self.addGaussianNoise2Output()
+
+    def generateVin(self):
         self.transVac2Vin()
         
         self.combinateAllData()
